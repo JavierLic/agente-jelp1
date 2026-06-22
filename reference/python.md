@@ -123,6 +123,54 @@ asyncio.run(main())
 - Permitir: `PermissionResultAllow(updated_input=input_data)`.
 - Negar: `PermissionResultDeny(message="...")` (opcional `interrupt=True`).
 
+## Tool personalizado (función tuya como herramienta)
+
+Para darle al agente una herramienta propia **en el mismo proceso** (sin IPC, con
+acceso directo a tu estado), decora una función async con `@tool` y sírvela con
+`create_sdk_mcp_server`. Es la vía ligera; para servidores MCP reusables o más
+grandes, usa la skill `mcp-server-dev`.
+
+```python
+import asyncio
+from claude_agent_sdk import (
+    query, ClaudeAgentOptions, ResultMessage, tool, create_sdk_mcp_server,
+)
+
+# 1) Tu función como tool. input_schema describe los parámetros.
+@tool("saludo", "Saluda a una persona por su nombre", {"nombre": str})
+async def saludo(args):
+    texto = f"¡Hola, {args['nombre']}!"
+    return {"content": [{"type": "text", "text": texto}]}   # formato de salida obligatorio
+
+# 2) Servidor en proceso que expone tu(s) tool(s).
+servidor = create_sdk_mcp_server(name="demo", version="1.0.0", tools=[saludo])
+
+async def prompt_stream():
+    yield {"type": "user",
+           "message": {"role": "user", "content": "Usa la herramienta saludo con 'Javier'."}}
+
+async def main():
+    options = ClaudeAgentOptions(
+        mcp_servers={"demo": servidor},        # conecta el servidor
+        allowed_tools=["mcp__demo__saludo"],   # pre-aprueba el tool por su nombre completo
+    )
+    async for message in query(prompt=prompt_stream(), options=options):
+        if isinstance(message, ResultMessage):
+            print(message.result)
+
+asyncio.run(main())
+```
+
+Claves:
+
+- **Nombre que ve el agente:** `mcp__<servidor>__<tool>` (aquí `mcp__demo__saludo`).
+  Para pre-aprobarlo, ponlo así en `allowed_tools`; si no, cae al callback `can_use_tool`.
+- **Entrada:** `input_schema` (ej. `{"nombre": str}`); el agente arma ese dict y tu
+  función lo recibe en `args`.
+- **Salida:** siempre `{"content": [{"type": "text", "text": "..."}]}`.
+- **cwd:** el SDK usa el directorio del proceso, no el del script. Si tu tool o el agente
+  escriben archivos con ruta relativa, ánclalos con `ClaudeAgentOptions(cwd="/ruta/proyecto")`.
+
 ## Verificar / enlaces
 
 - Python API: https://code.claude.com/docs/en/agent-sdk/python
