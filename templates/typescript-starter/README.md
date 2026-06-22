@@ -13,12 +13,14 @@ aprobación (s/n) para Bash/Edit/Write. Usa tu suscripción Claude Max.
    ```bash
    npm install
    ```
-3. Autentica con tu suscripción (no API):
+3. Autenticación (suscripción, no API):
+   - Si ya usas Claude Code logueado en esta máquina, **no necesitas hacer nada**: el SDK usa ese login.
+   - Solo para CI/servidores sin login, genera un token:
    ```bash
    claude setup-token
    export CLAUDE_CODE_OAUTH_TOKEN=<token>
-   unset ANTHROPIC_API_KEY      # por si estaba definida (tiene prioridad)
    ```
+   - Asegúrate de no tener `ANTHROPIC_API_KEY` (tiene prioridad y facturaría por API): `unset ANTHROPIC_API_KEY`
 4. Smoke test:
    ```bash
    npm start

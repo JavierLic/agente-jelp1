@@ -28,8 +28,8 @@ con la **suscripción Claude Max** del usuario (no facturación por API).
 ## Autenticación (importante)
 
 Estos agentes usan la **suscripción Claude Max**, no API de pago por token:
-- Generar token: `claude setup-token` (requiere Claude Code CLI + plan Pro/Max/Team/Enterprise).
-- Exportar: `export CLAUDE_CODE_OAUTH_TOKEN=<token>`.
+- **En una máquina con Claude Code logueado:** el SDK usa ese login automáticamente; no hace falta el token.
+- **En CI/servidores sin login:** generar token con `claude setup-token` (requiere Claude Code CLI + plan Pro/Max/Team/Enterprise) y exportar `CLAUDE_CODE_OAUTH_TOKEN=<token>`.
 - Correr **sin** `ANTHROPIC_API_KEY` (esa variable tiene prioridad y facturaría por API).
 
 (Existe también auth por API key para producción/terceros; fuera del alcance de esta skill.)

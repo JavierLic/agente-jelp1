@@ -2,7 +2,8 @@
 
 Postura de permisos: lectura pre-aprobada (Read/Glob/Grep/WebSearch) y aprobación
 manual (s/n) para acciones sensibles (Bash/Edit/Write).
-Autenticación: suscripción Claude Max vía CLAUDE_CODE_OAUTH_TOKEN.
+Autenticación: suscripción Claude Max. Usa tu login de Claude Code automáticamente;
+el token CLAUDE_CODE_OAUTH_TOKEN solo hace falta en CI/servidores sin login.
 """
 
 import os
@@ -26,16 +27,17 @@ SENSIBLES = {"Bash", "Edit", "Write"}
 
 
 def revisar_entorno() -> None:
-    """Valida la autenticación antes de cualquier llamada al SDK."""
+    """Revisa la autenticación de suscripción. NO aborta si falta el token: el SDK
+    usa tu login de Claude Code cuando está disponible."""
     if not os.environ.get("CLAUDE_CODE_OAUTH_TOKEN"):
-        sys.exit(
-            "Falta CLAUDE_CODE_OAUTH_TOKEN.\n"
-            "Genéralo con:  claude setup-token  (requiere plan Pro/Max/Team/Enterprise)\n"
-            "Luego:         export CLAUDE_CODE_OAUTH_TOKEN=<token>"
+        print(
+            "Nota: CLAUDE_CODE_OAUTH_TOKEN no está definido; usaré tu login de Claude\n"
+            "Code (suscripción) si está disponible. En CI/servidores sin login, genera\n"
+            "un token con:  claude setup-token  y expórtalo como CLAUDE_CODE_OAUTH_TOKEN."
         )
     if os.environ.get("ANTHROPIC_API_KEY"):
         print(
-            "AVISO: ANTHROPIC_API_KEY está definida y tiene prioridad sobre el token de\n"
+            "AVISO: ANTHROPIC_API_KEY está definida y tiene prioridad sobre la\n"
             "suscripción; facturaría por API. Ejecuta:  unset ANTHROPIC_API_KEY"
         )
 

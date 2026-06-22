@@ -14,11 +14,15 @@ claude-agent-sdk`, tu intérprete es menor a 3.10 (verifica con `python3 --versi
 
 ## Autenticación (suscripción Claude Max)
 
-Esta skill usa la suscripción, no API de pago por token:
+Esta skill usa la suscripción, no API de pago por token. Dos casos:
+
+- **En tu máquina con Claude Code logueado:** el SDK usa ese login automáticamente.
+  No necesitas el token; solo corre el agente.
+- **En CI / servidores sin login:** genera un token de larga duración (~1 año) y expórtalo:
 
 ```bash
 claude setup-token                      # requiere Claude Code CLI + plan Pro/Max/Team/Enterprise
-export CLAUDE_CODE_OAUTH_TOKEN=<token>  # token de larga duración (~1 año)
+export CLAUDE_CODE_OAUTH_TOKEN=<token>
 ```
 
 Corre **sin** `ANTHROPIC_API_KEY`: esa variable tiene prioridad y facturaría por API.
