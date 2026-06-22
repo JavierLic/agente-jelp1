@@ -64,4 +64,4 @@ Los `.env.example` deben quedar siempre con el valor **vacío**.
 
 ## Licencia
 
-[MIT](LICENSE) © 2026 Javier Lic. Úsalo, modifícalo y compártelo libremente.
+[MIT](LICENSE) © 2026 Javier Licea Perez. Úsalo, modifícalo y compártelo libremente.
