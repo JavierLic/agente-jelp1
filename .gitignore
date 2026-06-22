@@ -1,0 +1,24 @@
+# Secretos — NUNCA subir. El token/API va en un .env local, jamás al repo.
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Variables de entorno sueltas
+*.token
+secrets.*
+
+# Artefactos de proceso (scratch interno)
+.sdd-progress.md
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node
+node_modules/
+npm-debug.log*
