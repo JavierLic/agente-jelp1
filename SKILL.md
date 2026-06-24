@@ -19,6 +19,10 @@ con la **suscripción Claude Max** del usuario (no facturación por API).
    - Conceptos: `reference/concepts.md`
    - Python: `reference/python.md`  ·  TypeScript: `reference/typescript.md`
    - Scaffold: `templates/python-starter/` o `templates/typescript-starter/`
+   - **Operación real:** `reference/operacion-en-produccion.md` — cárgalo si el agente
+     usará **navegador** (Playwright), **correrá solo** (cron/launchd), o se **integra con
+     apps del usuario** (correo, OneDrive, etc.). Trae patrones que evitan que el agente
+     sature la máquina o actúe sobre datos ajenos.
 4. **Scaffold:** copia el starter al directorio que indique el usuario, ajusta el nombre,
    explica cada archivo y recuérdale generar el token con `claude setup-token` y exportar
    `CLAUDE_CODE_OAUTH_TOKEN`.
@@ -38,3 +42,21 @@ Estos agentes usan la **suscripción Claude Max**, no API de pago por token:
 
 Los agentes generados pre-aprueban tools de solo lectura (`Read`, `Glob`, `Grep`,
 `WebSearch`) y piden aprobación para acciones sensibles (`Bash`, `Edit`, `Write`).
+
+## Reglas de producción (resumen; detalle en `reference/operacion-en-produccion.md`)
+
+Lecciones de agentes reales — aplícalas siempre que apliquen:
+
+- **Navegador (Playwright):** un navegador por tarea, `async with async_playwright()` +
+  `try/finally` para cerrar SIEMPRE (aun en excepción) + cierre de emergencia
+  `atexit`/`SIGTERM`. Verifica que no queden procesos `chrome-headless-shell`. Si no, satura
+  la máquina.
+- **Corre-solo (launchd/cron):** wrapper con venv + log; idempotente (mueve lo procesado);
+  decide con el usuario si **envía** o deja **borrador**; avisa del permiso de Automatización.
+- **Apps del usuario:** el "nuevo Outlook" de Mac **envía** por AppleScript pero **no lee**;
+  para ingerir correo usa Power Automate/Graph/IMAP. OneDrive a veces no baja a disco
+  (`open -a OneDrive`). No asumas permisos de macOS concedidos.
+- **Seguridad de datos:** procesa por el **dato autoritativo** (no por remitente/nombre de
+  archivo) y **aparta** lo que no es del agente en vez de actuar sobre ello.
+- **Código fuera de OneDrive/Dropbox** (sincroniza venv/node_modules y traba la máquina);
+  los datos sí pueden vivir en la nube.
